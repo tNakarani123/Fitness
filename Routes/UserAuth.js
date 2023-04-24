@@ -12,7 +12,7 @@ const { body, validationResult } = require('express-validator');
 
 // ROUTE 1: Create a User using: POST http://localhost:5000/api/userAuth/userSignIn. No login required
 router.post('/userSignIn', [
-    body('Email_id', 'Enter a valid email').isEmail(),
+    body('Email', 'Enter a valid email').isEmail(),
     body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
     body('Age', 'Please enter a age'),
     body('Weight', 'Please enter a Weight'),
@@ -22,14 +22,16 @@ router.post('/userSignIn', [
     body('Password', 'Password must be atleast 6 characters').isLength({ min: 6 }),
 ], async (req, res) => {
     let success = false;
+
     // If there are errors, return Bad request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
+
     try {
         // Check whether the user with this email exists already
-        let user = await User.findOne({ Email_id: req.body.Email_id });
+        let user = await User.findOne({ Email: req.body.Email });
         if (user) {
             success = false;
             return res.status(400).json({ success, error: "Sorry a user with this email already exists" })
@@ -41,17 +43,10 @@ router.post('/userSignIn', [
             return res.status(400).json({ success, error: "Sorry a user with this mobile number already exists" })
         }
 
-        // const salt = await bcrypt.genSalt(10);
-        // const pass = await bcrypt.hash(req.body.Password, salt);
-
-        // console.log(await bcrypt.hash(req.body.Password, salt));
-        // res.send({secPass});
-
-
         // Create a new user
         user = await User.create({
             Name: req.body.Name,
-            Email_id: req.body.Email,
+            Email: req.body.Email,
             Mobile_no: req.body.Mobile_no,
             Age: req.body.Age,
             Weight: req.body.Weight,
@@ -66,8 +61,6 @@ router.post('/userSignIn', [
             id: user.id,
             success: success
         }
-        // const authtoken = jwt.sign(data, JWT_SECRET);
-
 
         // res.json(user)
         res.status(200).send({
@@ -145,7 +138,7 @@ router.post('/loginuser', [
 //update user  http://localhost:5000/api/userAuth/updateuser/64426506a64f5121f673ea55
 router.patch('/updateuser/:id', [
     body('Name', 'Please Enter a Name').isLength({ min: 2 }),
-    body('Email_id', 'Enter a valid email').isEmail(),
+    body('Email', 'Enter a valid email').isEmail(),
     body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
     body('Age', 'Please enter a age'),
     body('Weight', 'Please enter a Weight'),
@@ -156,16 +149,25 @@ router.patch('/updateuser/:id', [
     body('Password', 'Password must be atleast 6 characters').isLength({ min: 6 }),
 ], async (req, res) => {
     try {
-        const { Name, Email_id, Mobile_no, Age, Weight, Height, Gender, Level, Gym_Time } = req.body;
+        const { Name, Email, Mobile_no, Age, Weight, Height, Gender, Level, Gym_Time } = req.body;
         let success = false;
 
         let user = await User.findById(req.params.id);
-        if (!user) { return res.status(404).send("not found") }
+        if (!user) {
+            success = false;
+            return res.status(404).json({ success, error: "not found" })
+        }
+
+        const existingUser = await User.findOne({ Mobile_no: req.body.Mobile_no });
+        if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+            success = false;
+            return res.status(400).json({ success, message: 'Mobile number already exists' });
+        }
 
         const newUser = {};
 
         if (Name) { newUser.Name = Name };
-        if (Email_id) { newUser.Email_id = Email_id };
+        if (Email) { newUser.Email = Email };
         if (Mobile_no) { newUser.Mobile_no = Mobile_no };
         if (Age) { newUser.Age = Age };
         if (Weight) { newUser.Weight = Weight };
@@ -174,17 +176,11 @@ router.patch('/updateuser/:id', [
         if (Level) { newUser.Email = Level };
         if (Gym_Time) { newUser.Email = Gym_Time };
 
-        let uUser = await User.findById(req.params.id);
-        if (!uUser) {
-            success = false;
-            return res.status(400).json({ success, error: "not found" })
-        }
-
-        uUser = await User.findByIdAndUpdate(req.params.id, { $set: newUser })
+        user = await User.findByIdAndUpdate(req.params.id, { $set: newUser })
 
         success = true;
         const data = {
-            id: uUser.id,
+            id: user.id,
             success: success
         }
 
@@ -194,4 +190,30 @@ router.patch('/updateuser/:id', [
         res.status(500).send("some error occured");
     }
 })
+
+
+
+// router.put('/users/:id/mobile_number', async (req, res) => {
+//     try {
+//         const user = await User.findById(req.params.id);
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         const existingUser = await User.findOne({ mobile_number: req.body.mobile_number });
+//         if (existingUser && existingUser._id.toString() !== user._id.toString()) {
+//             return res.status(400).json({ message: 'Mobile number already exists' });
+//         }
+
+//         user.mobile_number = req.body.mobile_number;
+//         await user.save();
+
+//         res.json(user);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ message: 'Server error' });
+//     }
+// });
+
+
 module.exports = router

@@ -6,7 +6,7 @@ const User = new Schema({
         type: String,
         default: 'name'
     },
-    Email_id: {
+    Email: {
         type: String,
         require: true,
         unique: true,
@@ -44,7 +44,7 @@ const User = new Schema({
         type: String,
         require: true
     },
-    Date:{
+    Date: {
         type: Date,
         default: Date.now
     }
