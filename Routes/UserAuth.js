@@ -1,0 +1,197 @@
+const express = require('express');
+const User = require('../Modules/UserAuth');
+const router = express.Router();
+const { body, validationResult } = require('express-validator');
+// const bcrypt = require('bcryptjs');
+// var jwt = require('jsonwebtoken');
+// const JWT_SECRET = process.env.JWT_SECRET;
+
+// router.get('/', (req, res) => {
+//     res.status(200).send("Server has been running on port");
+// })
+
+// ROUTE 1: Create a User using: POST http://localhost:5000/api/userAuth/userSignIn. No login required
+router.post('/userSignIn', [
+    body('Email_id', 'Enter a valid email').isEmail(),
+    body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
+    body('Age', 'Please enter a age'),
+    body('Weight', 'Please enter a Weight'),
+    body('Height', 'Please enter a Height'),
+    body('Gender', 'Please enter a Gender'),
+    body('Level', 'Please enter a Level'),
+    body('Password', 'Password must be atleast 6 characters').isLength({ min: 6 }),
+], async (req, res) => {
+    let success = false;
+    // If there are errors, return Bad request and the errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        // Check whether the user with this email exists already
+        let user = await User.findOne({ Email_id: req.body.Email_id });
+        if (user) {
+            success = false;
+            return res.status(400).json({ success, error: "Sorry a user with this email already exists" })
+        }
+
+        user = await User.findOne({ Mobile_no: req.body.Mobile_no });
+        if (user) {
+            success = false;
+            return res.status(400).json({ success, error: "Sorry a user with this mobile number already exists" })
+        }
+
+        // const salt = await bcrypt.genSalt(10);
+        // const pass = await bcrypt.hash(req.body.Password, salt);
+
+        // console.log(await bcrypt.hash(req.body.Password, salt));
+        // res.send({secPass});
+
+
+        // Create a new user
+        user = await User.create({
+            Name: req.body.Name,
+            Email_id: req.body.Email,
+            Mobile_no: req.body.Mobile_no,
+            Age: req.body.Age,
+            Weight: req.body.Weight,
+            Height: req.body.Height,
+            Gender: req.body.Gender,
+            Level: req.body.Level,
+            Gym_Time: req.body.Gym_Time,
+            Password: req.body.Password
+        });
+        success = true;
+        const data = {
+            id: user.id,
+            success: success
+        }
+        // const authtoken = jwt.sign(data, JWT_SECRET);
+
+
+        // res.json(user)
+        res.status(200).send({
+            message: 'User sign in successfully',
+            data: data
+        })
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+})
+
+
+// ROUTE 2: Authenticate a User using: POST http://localhost:5000/api/userAuth/loginuser. No login required
+router.post('/loginuser', [
+    body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
+    body('Password', 'Password cannot be blank').exists(),
+], async (req, res) => {
+    let success = false;
+    // If there are errors, return Bad request and the errors
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { Mobile_no, Password } = req.body;
+    try {
+        const user = await User.findOne({ Mobile_no });
+        if (!user) {
+            success = false
+            return res.status(400).json({ success, error: "Please try to login with correct credentialsssss" });
+        }
+
+        const Pass = await User.findOne({ Password });
+        if (!Pass) {
+            success = false
+            return res.status(400).json({ success, error: "Please try to login with correct credentials" });
+        }
+
+        console.log(user, Pass)
+
+        success = true;
+        const data = {
+            id: user.id,
+            success: success
+        }
+        res.status(200).json({ success, data })
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
+// ROUTE 3: Get loggedin User Details using: POST "/api/auth/getuser". Login required
+// router.get('/getuser', fetchuser, async (req, res) => {
+
+//     try {
+//         const userId = req.user.id;
+//         const user = await User.findById(userId);
+//         console.log(user);
+//         res.send(user)
+
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).send("Internal Server Error");
+//     }
+// })
+
+
+
+//update user  http://localhost:5000/api/userAuth/updateuser/64426506a64f5121f673ea55
+router.patch('/updateuser/:id', [
+    body('Name', 'Please Enter a Name').isLength({ min: 2 }),
+    body('Email_id', 'Enter a valid email').isEmail(),
+    body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
+    body('Age', 'Please enter a age'),
+    body('Weight', 'Please enter a Weight'),
+    body('Height', 'Please enter a Height'),
+    body('Gender', 'Please enter a Gender'),
+    body('Level', 'Please enter a Level'),
+    body('Gym_Time', 'Please enter a Gym_Time'),
+    body('Password', 'Password must be atleast 6 characters').isLength({ min: 6 }),
+], async (req, res) => {
+    try {
+        const { Name, Email_id, Mobile_no, Age, Weight, Height, Gender, Level, Gym_Time } = req.body;
+        let success = false;
+
+        let user = await User.findById(req.params.id);
+        if (!user) { return res.status(404).send("not found") }
+
+        const newUser = {};
+
+        if (Name) { newUser.Name = Name };
+        if (Email_id) { newUser.Email_id = Email_id };
+        if (Mobile_no) { newUser.Mobile_no = Mobile_no };
+        if (Age) { newUser.Age = Age };
+        if (Weight) { newUser.Weight = Weight };
+        if (Height) { newUser.Height = Height };
+        if (Gender) { newUser.Gender = Gender };
+        if (Level) { newUser.Email = Level };
+        if (Gym_Time) { newUser.Email = Gym_Time };
+
+        let uUser = await User.findById(req.params.id);
+        if (!uUser) {
+            success = false;
+            return res.status(400).json({ success, error: "not found" })
+        }
+
+        uUser = await User.findByIdAndUpdate(req.params.id, { $set: newUser })
+
+        success = true;
+        const data = {
+            id: uUser.id,
+            success: success
+        }
+
+        res.status(200).json({ success, data })
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("some error occured");
+    }
+})
+module.exports = router
