@@ -138,7 +138,7 @@ router.post('/loginuser', [
 //update user  http://localhost:5000/api/userAuth/updateuser/64426506a64f5121f673ea55
 router.patch('/updateuser/:id', [
     body('Name', 'Please Enter a Name').isLength({ min: 2 }),
-    body('Email', 'Enter a valid email').isEmail(),
+    // body('Email', 'Enter a valid email').isEmail(),
     body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
     body('Age', 'Please enter a age'),
     body('Weight', 'Please enter a Weight'),
@@ -165,7 +165,7 @@ router.patch('/updateuser/:id', [
         }
 
         const newUser = {};
-
+        console.log(Email)
         if (Name) { newUser.Name = Name };
         if (Email) { newUser.Email = Email };
         if (Mobile_no) { newUser.Mobile_no = Mobile_no };
@@ -173,8 +173,8 @@ router.patch('/updateuser/:id', [
         if (Weight) { newUser.Weight = Weight };
         if (Height) { newUser.Height = Height };
         if (Gender) { newUser.Gender = Gender };
-        if (Level) { newUser.Email = Level };
-        if (Gym_Time) { newUser.Email = Gym_Time };
+        if (Level) { newUser.Level = Level };
+        if (Gym_Time) { newUser.Gym_Time = Gym_Time };
 
         user = await User.findByIdAndUpdate(req.params.id, { $set: newUser })
 
