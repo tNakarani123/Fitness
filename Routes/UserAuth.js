@@ -2,13 +2,6 @@ const express = require('express');
 const User = require('../Modules/UserAuth');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
-// const bcrypt = require('bcryptjs');
-// var jwt = require('jsonwebtoken');
-// const JWT_SECRET = process.env.JWT_SECRET;
-
-// router.get('/', (req, res) => {
-//     res.status(200).send("Server has been running on port");
-// })
 
 // ROUTE 1: Create a User using: POST http://localhost:5000/api/userAuth/userSignIn. No login required
 router.post('/userSignIn', [
