@@ -120,7 +120,6 @@ router.post('/loginuser', [
 // ROUTE 3: Get loggedin User Details using: Login required http://localhost:5000/api/userAuth/getLoginUser/{id}
 router.get('/getLoginUser/:id', async (req, res) => {
     try {
-        console.log(req.params.id);
         let user = await User.findById(req.params.id);
         if (!user) {
             success = false;
