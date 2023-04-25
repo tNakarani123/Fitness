@@ -117,20 +117,22 @@ router.post('/loginuser', [
 });
 
 
-// ROUTE 3: Get loggedin User Details using: POST "/api/auth/getuser". Login required
-// router.get('/getuser', fetchuser, async (req, res) => {
-
-//     try {
-//         const userId = req.user.id;
-//         const user = await User.findById(userId);
-//         console.log(user);
-//         res.send(user)
-
-//     } catch (error) {
-//         console.error(error.message);
-//         res.status(500).send("Internal Server Error");
-//     }
-// })
+// ROUTE 3: Get loggedin User Details using: Login required http://localhost:5000/api/userAuth/getLoginUser/{id}
+router.get('/getLoginUser/:id', async (req, res) => {
+    try {
+        console.log(req.params.id);
+        let user = await User.findById(req.params.id);
+        if (!user) {
+            success = false;
+            return res.status(404).json({ success, error: "not found" })
+        } else {
+            res.send(user)
+        }
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+})
 
 
 
@@ -189,30 +191,5 @@ router.patch('/updateuser/:id', [
         res.status(500).send("some error occured");
     }
 })
-
-
-
-// router.put('/users/:id/mobile_number', async (req, res) => {
-//     try {
-//         const user = await User.findById(req.params.id);
-//         if (!user) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-
-//         const existingUser = await User.findOne({ mobile_number: req.body.mobile_number });
-//         if (existingUser && existingUser._id.toString() !== user._id.toString()) {
-//             return res.status(400).json({ message: 'Mobile number already exists' });
-//         }
-
-//         user.mobile_number = req.body.mobile_number;
-//         await user.save();
-
-//         res.json(user);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).json({ message: 'Server error' });
-//     }
-// });
-
 
 module.exports = router
