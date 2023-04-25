@@ -17,15 +17,15 @@ const User = new Schema({
         unique: true,
     },
     Age: {
-        type: Number,
+        type: String,
         require: true
     },
     Weight: {
-        type: Number,
+        type: String,
         require: true
     },
     Height: {
-        type: Number,
+        type: String,
         require: true
     },
     Gender: {
