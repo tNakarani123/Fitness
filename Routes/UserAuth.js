@@ -109,8 +109,7 @@ router.post('/loginuser', [
             id: user.id,
             success: success
         }
-        res.status(200).json({ success, data })
-
+        res.status(200).json({ message: 'User Login successfully', data })
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
@@ -184,7 +183,7 @@ router.patch('/updateuser/:id', [
             success: success
         }
 
-        res.status(200).json({ success, data })
+        res.status(200).json({ message: 'User Update successfully', data })
     } catch (error) {
         console.error(error.message);
         res.status(500).send("some error occured");
