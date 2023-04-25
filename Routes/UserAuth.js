@@ -127,8 +127,25 @@ router.get('/getLoginUser/:id', async (req, res) => {
 })
 
 
+// ROUTE 4: Get loggedin User Details using: Login required http://localhost:5000/api/userAuth/checkUser/{id}
+router.get('/checkUser/:id', async (req, res) => {
+    try {
+        let user = await User.findById(req.params.id);
+        if (!user) {
+            success = false;
+            return res.status(404).json({ success, error: "not found" })
+        } else {
+            success = true;
+            res.status(200).json({success, message: 'User has account in this app'})
+        }
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+})
 
-//update user  http://localhost:5000/api/userAuth/updateuser/64426506a64f5121f673ea55
+
+//ROUTE 5: update user  http://localhost:5000/api/userAuth/updateuser/64426506a64f5121f673ea55
 router.patch('/updateuser/:id', [
     body('Name', 'Please Enter a Name').isLength({ min: 2 }),
     // body('Email', 'Enter a valid email').isEmail(),
