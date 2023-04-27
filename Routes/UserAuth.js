@@ -11,7 +11,7 @@ dotenv.config()
 // ROUTE 1: Create a User using: POST http://localhost:5000/api/userAuth/userSignIn. No login required
 router.post('/userSignIn', [
     body('Email', 'Enter a valid email').isEmail(),
-    body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
+    body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
     body('Age', 'Please enter a age'),
     body('Weight', 'Please enter a Weight'),
     body('Height', 'Please enter a Height'),
@@ -75,7 +75,7 @@ router.post('/userSignIn', [
 
 // ROUTE 2: Authenticate a User using: POST http://localhost:5000/api/userAuth/loginuser. No login required
 router.post('/loginuser', [
-    body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5}),
+    body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
     body('Password', 'Password cannot be blank').exists(),
 ], async (req, res) => {
     let success = false;
@@ -327,26 +327,26 @@ const otpMap2 = new Map();
 //ROUTE 8: forget password http://localhost:5000/api/userAuth/verifyMobileNoSignUp
 router.get('/verifyMobileNoSignUp',
     [
-        body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5}),
+        body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
     ],
     async (req, res) => {
         try {
             const { Mobile_no } = req.body;
             const mob = '+91' + Mobile_no
             let success = false;
-                const otp = randomstring.generate({ length: 4, charset: 'numeric' });
+            const otp = randomstring.generate({ length: 4, charset: 'numeric' });
 
-                const client = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-                await client.messages.create({
-                    body: `Verify Your Mobile Number With This One Time Password ${otp}`,
-                    from: process.env.TWILIO_FROM_PHONE_NUMBER,
-                    to: mob
-                });
+            const client = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+            await client.messages.create({
+                body: `Verify Your Mobile Number With This One Time Password ${otp}`,
+                from: process.env.TWILIO_FROM_PHONE_NUMBER,
+                to: mob
+            });
 
-                otpMap2.set(mob, otp);
-                console.log(mob);
-                success = true;
-                res.status(200).json({ success, message: 'OTP sent successfully' });
+            otpMap2.set(mob, otp);
+            console.log(mob);
+            success = true;
+            res.status(200).json({ success, message: 'OTP sent successfully' });
         } catch (error) {
             console.error(error.message);
             res.status(500).send("some error occured");
@@ -357,7 +357,7 @@ router.get('/verifyMobileNoSignUp',
 //ROUTE 7: verify otp http://localhost:5000/api/userAuth/verifyOtpSignUp
 router.get('/verifyOtpSignUp',
     [
-        body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5}),
+        body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
         body('otp', 'Enter a valid otp number').isLength({ min: 4, max: 4 }),
     ],
     async (req, res) => {
@@ -366,26 +366,26 @@ router.get('/verifyOtpSignUp',
         const mob = '+91' + Mobile_no
 
         let success = false;
-            console.log(mob)
-            if (otpMap2.has(mob)) {
-                // Get the stored OTP
-                const storedOtp = otpMap2.get(mob);
+        console.log(mob)
+        if (otpMap2.has(mob)) {
+            // Get the stored OTP
+            const storedOtp = otpMap2.get(mob);
 
-                // Check if the entered OTP matches the stored OTP
-                if (otp === storedOtp) {
-                    // OTP authentication successful
-                    success = true;
-                    res.status(200).json({ success, message: 'OTP authentication successful' });
-                } else {
-                    // Invalid OTP
-                    success = false;
-                    return res.status(404).json({ success, error: 'Invalid OTP' });
-                }
+            // Check if the entered OTP matches the stored OTP
+            if (otp === storedOtp) {
+                // OTP authentication successful
+                success = true;
+                res.status(200).json({ success, message: 'OTP authentication successful' });
             } else {
-                // OTP not found for the given mobile number
+                // Invalid OTP
                 success = false;
-                return res.status(404).json({ success, error: 'OTP not found for the given mobile number' });
+                return res.status(404).json({ success, error: 'Invalid OTP' });
             }
+        } else {
+            // OTP not found for the given mobile number
+            success = false;
+            return res.status(404).json({ success, error: 'OTP not found for the given mobile number' });
+        }
     }
 )
 
