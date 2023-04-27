@@ -324,7 +324,7 @@ router.patch('/forgetPassword/:id', [
 
 
 const otpMap2 = new Map();
-//ROUTE 8: forget password http://localhost:5000/api/userAuth/verifyMobileNoSignUp
+//ROUTE 9: forget password http://localhost:5000/api/userAuth/verifyMobileNoSignUp
 router.get('/verifyMobileNoSignUp',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
@@ -354,7 +354,7 @@ router.get('/verifyMobileNoSignUp',
     }
 )
 
-//ROUTE 7: verify otp http://localhost:5000/api/userAuth/verifyOtpSignUp
+//ROUTE 10: verify otp http://localhost:5000/api/userAuth/verifyOtpSignUp
 router.get('/verifyOtpSignUp',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
