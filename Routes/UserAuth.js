@@ -153,18 +153,14 @@ router.get('/checkUser/:id', async (req, res) => {
 //ROUTE 5: update user  http://localhost:5000/api/userAuth/updateuser/64426506a64f5121f673ea55
 router.patch('/updateuser/:id', [
     body('Name', 'Please Enter a Name').isLength({ min: 2 }),
-    // body('Email', 'Enter a valid email').isEmail(),
-    // body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 10, max: 10 }),
     body('Age', 'Please enter a age'),
     body('Weight', 'Please enter a Weight'),
     body('Height', 'Please enter a Height'),
     body('Gender', 'Please enter a Gender'),
     body('Level', 'Please enter a Level'),
-    body('Gym_Time', 'Please enter a Gym_Time'),
-    body('Password', 'Password must be atleast 6 characters').isLength({ min: 6 }),
+    body('Gym_Time', 'Please enter a Gym_Time')
 ], async (req, res) => {
     try {
-        // const { Name, Email, Mobile_no, Age, Weight, Height, Gender, Level, Gym_Time } = req.body;
         const { Name, Age, Weight, Height, Gender, Level, Gym_Time } = req.body;
         let success = false;
 
@@ -174,17 +170,8 @@ router.patch('/updateuser/:id', [
             return res.status(404).json({ success, error: "not found" })
         }
 
-        // const existingUser = await User.findOne({ Mobile_no: req.body.Mobile_no });
-        // if (existingUser && existingUser._id.toString() !== user._id.toString()) {
-        //     success = false;
-        //     return res.status(400).json({ success, message: 'Mobile number already exists' });
-        // }
-
         const newUser = {};
-        // console.log(Email)
         if (Name) { newUser.Name = Name };
-        // if (Email) { newUser.Email = Email };
-        // if (Mobile_no) { newUser.Mobile_no = Mobile_no };
         if (Age) { newUser.Age = Age };
         if (Weight) { newUser.Weight = Weight };
         if (Height) { newUser.Height = Height };
@@ -245,7 +232,7 @@ router.get('/verifyMobileNo/:id',
                 success = false;
                 return res.status(404).json({ success, error: "Enter Valide Mobile number" })
             }
-            
+
         } catch (error) {
             console.error(error.message);
             res.status(500).send("some error occured");
@@ -303,12 +290,11 @@ router.get('/verifyOtp/:id',
 )
 
 
-//ROUTE 8: forget password  http://localhost:5000/api/userAuth/forgetPassword/64426506a64f5121f673ea55
+//ROUTE 8: forget password http://localhost:5000/api/userAuth/forgetPassword/64426506a64f5121f673ea55
 router.patch('/forgetPassword/:id', [
     body('Password', 'Password must be atleast 6 characters').isLength({ min: 6 }),
 ], async (req, res) => {
     try {
-        // const { Name, Email, Mobile_no, Age, Weight, Height, Gender, Level, Gym_Time } = req.body;
         const { Password } = req.body;
         let success = false;
 
