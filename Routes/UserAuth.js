@@ -194,10 +194,10 @@ router.patch('/updateuser/:id', [
     }
 })
 
-//ROUTE 6: Send otp http://localhost:5000/api/userAuth/verifyMobileNo/64426506a64f5121f673ea55
+//ROUTE 6: Send otp http://localhost:5000/api/userAuth/verifyMobileNo
 const otpMap = new Map();
 
-router.post('/verifyMobileNo/:id',
+router.post('/verifyMobileNo',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
     ],
@@ -207,10 +207,10 @@ router.post('/verifyMobileNo/:id',
             const mob = '+91' + Mobile_no
             let success = false;
 
-            let user = await User.findById(req.params.id);
+            let user = await User.findOne({ Mobile_no: Mobile_no });
             if (!user) {
                 success = false;
-                return res.status(404).json({ success, error: "not found" })
+                return res.status(404).json({ success, error: "Please add correct mobile number" })
             }
 
             if (user.Mobile_no == Mobile_no) {
@@ -240,8 +240,8 @@ router.post('/verifyMobileNo/:id',
     }
 )
 
-//ROUTE 7: verify otp http://localhost:5000/api/userAuth/verifyOtp/644611b542f42ea982f59d23 
-router.post('/verifyOtp/:id',
+//ROUTE 7: verify otp http://localhost:5000/api/userAuth/verifyOtp
+router.post('/verifyOtp',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
         body('otp', 'Enter a valid otp number').isLength({ min: 4, max: 4 }),
@@ -253,7 +253,7 @@ router.post('/verifyOtp/:id',
 
         let success = false;
 
-        let user = await User.findById(req.params.id);
+        let user = await User.findOne({ Mobile_no: Mobile_no });
         if (!user) {
             success = false;
             return res.status(404).json({ success, error: "not found" })
@@ -270,7 +270,12 @@ router.post('/verifyOtp/:id',
                 if (otp === storedOtp) {
                     // OTP authentication successful
                     success = true;
-                    res.status(200).json({ success, message: 'OTP authentication successful' });
+                    const data = {
+                        success: true,
+                        id: user.id,
+                        message: 'OTP authentication successful'
+                    }
+                    res.status(200).json({ success, data });
                 } else {
                     // Invalid OTP
                     success = false;
