@@ -116,7 +116,7 @@ router.post('/loginuser', [
 
 
 // ROUTE 3: Get loggedin User Details using: Login required http://localhost:5000/api/userAuth/getLoginUser/{id}
-router.get('/getLoginUser/:id', async (req, res) => {
+router.post('/getLoginUser/:id', async (req, res) => {
     try {
         let user = await User.findById(req.params.id);
         if (!user) {
@@ -133,7 +133,7 @@ router.get('/getLoginUser/:id', async (req, res) => {
 
 
 // ROUTE 4: Get loggedin User Details using: Login required http://localhost:5000/api/userAuth/checkUser/{id}
-router.get('/checkUser/:id', async (req, res) => {
+router.post('/checkUser/:id', async (req, res) => {
     try {
         let user = await User.findById(req.params.id);
         if (!user) {
@@ -141,7 +141,7 @@ router.get('/checkUser/:id', async (req, res) => {
             return res.status(404).json({ success, error: "not found" })
         } else {
             success = true;
-            res.status(200).json({ success, message: 'User has account in this app' })
+            res.status(200).json({ success, user })
         }
     } catch (error) {
         console.error(error.message);
@@ -197,7 +197,7 @@ router.patch('/updateuser/:id', [
 //ROUTE 6: Send otp http://localhost:5000/api/userAuth/verifyMobileNo/64426506a64f5121f673ea55
 const otpMap = new Map();
 
-router.get('/verifyMobileNo/:id',
+router.post('/verifyMobileNo/:id',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
     ],
@@ -241,7 +241,7 @@ router.get('/verifyMobileNo/:id',
 )
 
 //ROUTE 7: verify otp http://localhost:5000/api/userAuth/verifyOtp/644611b542f42ea982f59d23 
-router.get('/verifyOtp/:id',
+router.post('/verifyOtp/:id',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
         body('otp', 'Enter a valid otp number').isLength({ min: 4, max: 4 }),
@@ -325,14 +325,14 @@ router.patch('/forgetPassword/:id', [
 
 const otpMap2 = new Map();
 //ROUTE 9: forget password http://localhost:5000/api/userAuth/verifyMobileNoSignUp
-router.get('/verifyMobileNoSignUp',
+router.post('/verifyMobileNoSignUp',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
     ],
     async (req, res) => {
         try {
             const { Mobile_no } = req.body;
-            const mob = '+91' + Mobile_no
+            const mob = Mobile_no
             let success = false;
             const otp = randomstring.generate({ length: 4, charset: 'numeric' });
 
@@ -355,7 +355,7 @@ router.get('/verifyMobileNoSignUp',
 )
 
 //ROUTE 10: verify otp http://localhost:5000/api/userAuth/verifyOtpSignUp
-router.get('/verifyOtpSignUp',
+router.post('/verifyOtpSignUp',
     [
         body('Mobile_no', 'Enter a valid mobile number').isLength({ min: 5 }),
         body('otp', 'Enter a valid otp number').isLength({ min: 4, max: 4 }),
@@ -363,7 +363,7 @@ router.get('/verifyOtpSignUp',
     async (req, res) => {
         const { Mobile_no, otp } = req.body;
 
-        const mob = '+91' + Mobile_no
+        const mob = Mobile_no
 
         let success = false;
         console.log(mob)
