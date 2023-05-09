@@ -8,6 +8,11 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
+
+router.get('/', async(req,res)=>{
+    res.send("Hii backend is now running on port")
+})
+
 // ROUTE 1: Create a User using: POST http://localhost:5000/api/userAuth/userSignIn. No login required
 router.post('/userSignIn', [
     body('Email', 'Enter a valid email').isEmail(),
